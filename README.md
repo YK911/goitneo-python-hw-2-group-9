@@ -1,2 +1,3 @@
-# goitneo-python-hw-1-group-9
- Homework 01 Python core
+# goitneo-python-hw-2-group-9
+
+Homework 02 Python core
