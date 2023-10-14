@@ -1,69 +1,100 @@
-def check_args(args: list):
-    if len(args) > 2 or len(args) == 1:
-        raise TypeError("❌ Command accepts a maximum of 2 arguments")
-    else:
-        return args
+from collections import UserDict
 
 
-def parse_input(user_input: str) -> (str, list):
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
-    return cmd, *args
+class Field:
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return str(self.value)
 
 
-def add_contact(args: list, contacts: dict) -> str:
-    name, phone = check_args(args)
-    contacts[name] = phone
-    return "🟢 Contact added"
+class Name(Field):
+    def __init__(self, name):
+        super().__init__(name)
 
 
-def update_contact(args: list, contacts: dict) -> str:
-    name, phone = check_args(args)
-    contacts[name] = phone
-    return "🟠 Contact updated"
+class Phone(Field):
+    def __init__(self, phone_number):
+        self.phone = Field(phone_number)
+
+    def __str__(self):
+        if len(self.phone) >= 10:
+            return self.phone
 
 
-def get_contact(args: list, contacts: dict) -> str:
-    search_name = str(args[0])
-    print("search_name: ", search_name)
-    for name, phone in contacts.items():
-        if search_name == name:
-            return f"📍 : {search_name.title()} 📱 {phone}"
-        else:
-            return f"⛔️ Contact {search_name.title()} doesn't exist"
+class Record:
+    def __init__(self, name):
+        self.name = Name(name)
+        self.phones = []
+
+    def add_phone(self, phone_number):
+        self.phones.append(phone_number)
+
+    def remove_phone(self, phone_number):
+        idx_num = self.phones.index(Phone(phone_number))
+        self.phones.pop(idx_num)
+        return self.phones
+
+    def edit_phone(self, edit_number, new_number):
+        idx_num = self.phones.index(edit_number)
+        if idx_num == -1:
+            return self.phones
+
+        self.phones[idx_num] = new_number
+
+        return self.phones
+
+    def find_phone(self, phone_number):
+        if phone_number in self.phones:
+            return phone_number
+
+    def __str__(self):
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
 
-def get_all_contacts(contacts: dict) -> str:
-    phonebook = "*** {:^20} ***\n\n".format("📒 Phonebook")
-    for name, phone in contacts.items():
-        phonebook += "📍 Contact: {:<10} 📱 {:<10}\n".format(name.title(), phone)
+class AddressBook(UserDict):
+    def add_record(self, contact):
+        self.data[contact.name.value] = contact.phones
 
-    return phonebook
+    def find(self, key):
+        res = self.data.get(key)
+        return res
 
-
-def main():
-    contacts = {}
-    print("Welcome to the assistant bot!")
-    while True:
-        user_input = input("Enter a command: ").strip().lower()
-        command, *args = parse_input(user_input)
-
-        if command in ["close", "exit"]:  # exit form function
-            print("Good bye!")
-            break
-        elif command == "hello":  # start phonebook
-            print("How can I help you?")
-        elif command == "add":  # add contact to phonebook
-            print(add_contact(args, contacts))
-        elif command == "change":  # update contact from phonebook
-            print(update_contact(args, contacts))
-        elif command == "phone":  # update contact from phonebook
-            print(get_contact(args, contacts))
-        elif command == "all":  # get all contacts from phonebook
-            print(get_all_contacts(contacts))
-        else:
-            print("Invalid command.")
+    def delete(self, key):
+        self.data.remove(key)
 
 
-if __name__ == "__main__":
-    main()
+# Створення нової адресної книги
+book = AddressBook()
+
+# Створення запису для John
+john_record = Record("John")
+john_record.add_phone("1234567890")
+john_record.add_phone("5555555555")
+
+# Додавання запису John до адресної книги
+book.add_record(john_record)
+
+# Створення та додавання нового запису для Jane
+jane_record = Record("Jane")
+jane_record.add_phone("9876543210")
+book.add_record(jane_record)
+
+# Виведення всіх записів у книзі
+for name, record in book.data.items():
+    # print(record)
+    pass
+
+# Знаходження та редагування телефону для John
+john = book.find("John")
+john.edit_phone("1234567890", "1112223333")
+
+# print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
+
+# Пошук конкретного телефону у записі John
+# found_phone = john.find_phone("5555555555")
+# print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
+
+# Видалення запису Jane
+# book.delete("Jane")
