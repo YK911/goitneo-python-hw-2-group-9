@@ -22,10 +22,6 @@ class Phone(Field):
         else:
             raise ValueError()
 
-    # def __str__(self):
-    #     if len(self.phone) >= 10:
-    #         return self.phone
-
 
 class Record:
     def __init__(self, name):
@@ -46,12 +42,19 @@ class Record:
                 idx_num = self.phones.index(p)
 
                 self.phones[idx_num] = Phone(new_number)
-        
+
         return self.phones
 
-    def find_phone(self, phone_number):
-        if phone_number in self.phones:
-            return phone_number
+    def find_phone(self, searh_number):
+        find_phone = ""
+        for phone in self.phones:
+            if str(phone) == str(searh_number):
+                find_phone = str(phone)
+
+        if find_phone:
+            return find_phone
+        else:
+            return f"Search phone {searh_number} does not exist in AddressBook"
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
@@ -79,7 +82,6 @@ john_record.add_phone("5555555555")
 
 # Додавання запису John до адресної книги
 book.add_record(john_record)
-
 # Створення та додавання нового запису для Jane
 jane_record = Record("Jane")
 jane_record.add_phone("9876543210")
@@ -88,7 +90,6 @@ book.add_record(jane_record)
 # Виведення всіх записів у книзі
 for name, record in book.data.items():
     print(record)
-    pass
 
 # Знаходження та редагування телефону для John
 john = book.find("John")
@@ -102,5 +103,3 @@ print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
 
 # Видалення запису Jane
 book.delete("Jane")
-
-print(book)
